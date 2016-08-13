@@ -1,3 +1,27 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// This script is intended to take the results from a Google form for clinic signups and 
+// randomize people to clinic dates in an attempt to create more fair signups than the 
+// previous first-come-first-served system. 
+//
+// The algorithm gathers all the people who signed up and their available dates
+// and then goes through the dates in ascending order of the number of volunteers
+// available that date and assigns people to that date. It then prints out the results 
+// in a new sheet titled "Clinic Schedule".
+//
+// This script could be more object-oriented to clean things up a bit. I don't have time
+// now, but might go through some later time to change that. Who knows. There is also no
+// testing.
+//
+// It's also dependent on a specific format. Dates must be in a mm/dd/yy format.
+// Column B must be a list of names, Column C can be a list of associated emails or it 
+// could be some other associated text, and Column D must contain comma-separated lists
+// of the dates that people are available. This must all be on a sheet named
+// "Form Responses 1".
+//
+// Created by Hutton Brandon (hbrandon@augusta.edu). Don't hesitate to contact if you
+// have questions.
+////////////////////////////////////////////////////////////////////////////////////////
+
 //
 // Variables
 //
@@ -27,7 +51,7 @@ function onOpen() {
 };
 
 //
-// Main Function
+// Main Functions
 //
 
 function createScheduleSheet () {
@@ -41,6 +65,18 @@ function createScheduleSheet () {
   addStaticItems();
   addClinicDatesObjects();
   addPeopleArrayWaitlist();
+};
+
+function deleteClinicSheet() {
+  var sht = ss.getSheetByName('Clinic Schedule');
+  
+  // If a 'Clinic Schedule' sheet exists, delete it. Else log lack of existence.
+  (sht) ? ss.deleteSheet(sht) : Logger.log("No Clinic Schedule tab exists");
+};
+
+function deleteScheduleAndCreateNewOne() {
+  deleteClinicSheet();
+  createScheduleSheet();
 };
 
 //
@@ -248,7 +284,9 @@ function addClinicDatesObjects() {
     
     // Set color of volunteer cells if non-zero number of volunteers
     if (length > 0) {
-      active.getRange(6,i+2,length).setBackgroundRGB(204, 204, 255);
+      var volunteerCells = active.getRange(6,i+2,length);
+      volunteerCells.setBackgroundRGB(204, 204, 255);
+      volunteerCells.setWrap(true);
     };
     
     // Set wraps
@@ -298,18 +336,6 @@ function addPeopleArrayWaitlist() {
          .setBackgroundRGB(0, 220, 0)
          .setNumberFormat('@STRING@');
   };
-};
-
-function deleteClinicSheet() {
-  var sht = ss.getSheetByName('Clinic Schedule');
-  
-  // If a 'Clinic Schedule' sheet exists, delete it. Else log lack of existence.
-  (sht) ? ss.deleteSheet(sht) : Logger.log("No Clinic Schedule tab exists");
-};
-
-function deleteScheduleAndCreateNewOne() {
-  deleteClinicSheet();
-  createScheduleSheet();
 };
 
 //
